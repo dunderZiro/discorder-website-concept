@@ -1,0 +1,53 @@
+version: "3.8"
+
+networks:
+  wordpress: 
+
+services:
+
+  database:
+    image: mysql:latest
+    container_name: discorder_database
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - wordpress
+
+  php-fpm:
+    build:
+      context: ./
+      dockerfile: ./Docker/php-fpm/Dockerfile
+    container_name: discorder_php
+    links: 
+      - database
+    volumes: 
+      - wp:/var/www/html
+    networks:
+      - wordpress
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./Docker/nginx/Dockerfile
+    container_name: discorder_nginx
+    depends_on: 
+      - php-fpm
+      - database
+    ports:
+      - 80:80
+    volumes: 
+      - wp:/var/www/html
+    networks:
+      - wordpress
+
+volumes:
+
+  wp:
+  db:
