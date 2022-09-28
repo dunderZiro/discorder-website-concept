@@ -1,7 +1,7 @@
 version: "3.8"
 
 networks:
-  wordpress: 
+  discorder_network: 
 
 services:
 
@@ -18,7 +18,7 @@ services:
     volumes:
       - db:/var/lib/mysql
     networks:
-      - wordpress
+      - discorder_network
 
   php-fpm:
     build:
@@ -30,7 +30,7 @@ services:
     volumes: 
       - wp:/var/www/html
     networks:
-      - wordpress
+      - discorder_network
 
   nginx:
     build:
@@ -45,9 +45,11 @@ services:
     volumes: 
       - wp:/var/www/html
     networks:
-      - wordpress
+      - discorder_network
 
   phpmyadmin:
+    depends_on:
+      - database
     image: phpmyadmin/phpmyadmin
     container_name: discorder_phpmyadmin
     links:
@@ -55,10 +57,11 @@ services:
     environment:
       PMA_HOST: database
       PMA_PORT: 3306
-      PMA_ARBITRARY: 1
     restart: always
     ports:
       - 8081:80
+    networks:
+      - discorder_network
 
 volumes:
 
